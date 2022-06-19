@@ -2,7 +2,7 @@
   <v-container>
     <v-form
     v-if="!loading"
-    @submit.prevent="signup"
+    @submit.prevent="login"
     ref="form"
     v-model="valid"
     lazy-validation
@@ -22,35 +22,13 @@
       required
     ></v-text-field>
 
-    <v-text-field
-      v-model="user.confirmPassword"
-      :rules="confirmPasswordRules"
-      label="Confirm Password"
-      type="password"
-      required
-    ></v-text-field>
-
-    <v-text-field
-      v-model="user.displayName"
-      :rules="notEmptyRules"
-      label="Display Name"
-      required
-    ></v-text-field>
-
-    <v-text-field
-      v-model="user.imageUrl"
-      :rules="notEmptyRules"
-      label="Image URL"
-      required
-    ></v-text-field>
-
     <v-btn
       color="info"
       class="mr-4"
       type="submit"
       :disabled="!valid"
     >
-      Signup
+      Login
     </v-btn>
   </v-form>
 
@@ -65,18 +43,15 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
-  name: 'signUp',
+  name: 'logIn',
   data: (vm) => ({
     valid: false,
     user: {
       username: '',
       password: '',
-      confirmPassword: '',
-      displayName: '',
-      imageUrl: '',
     },
     notEmptyRules: [
       (v) => !!v || 'Name is required',
@@ -87,15 +62,19 @@ export default {
     ],
   }),
   computed: {
-    ...mapState('users', { loading: 'isCreatePending' }),
+    ...mapState('auth', { loading: 'isAuthenticatePending' }),
   },
   methods: {
-    async signup() {
+    ...mapActions('auth', ['authenticate']),
+    async login() {
       try {
-        const { User } = this.$FeathersVuex.api;
-        const u1 = new User(this.user);
-        await u1.create();
-        this.$router.push('/login');
+        const response = await this.$store.dispatch('auth/authenticate', {
+          strategy: 'local',
+          username: this.user.username,
+          password: this.user.password,
+        });
+        console.log(response);
+        this.$router.push('/boards');
       } catch (error) {
         console.log(error);
       }
