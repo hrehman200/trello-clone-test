@@ -9,7 +9,7 @@ module.exports = function (app) {
     {
       displayName: { type: String, unique: false, required: true },
       username: { type: String, unique: true, lowercase: true },
-      password: { type: String },
+      password: { type: String, required: true },
       imageUrl: { type: String, required: true },
     },
     {
