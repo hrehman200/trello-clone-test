@@ -15,26 +15,39 @@
           width="40"
         />
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <h3>Trello Clone</h3>
       </div>
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <div v-if="!payload">
+        <v-btn
+          href="/login"
+          text
+        >
+          <span class="mr-2">Login</span>
+          <v-icon>mdi-login</v-icon>
+        </v-btn>
+
+        <v-btn
+          href="/signup"
+          text
+        >
+          <span class="mr-2">Signup</span>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </div>
+
+      <div v-if="payload">
+        <v-btn
+          @click="logout"
+          text
+        >
+          <span class="mr-2">Logout</span>
+          <v-icon>mdi-logout</v-icon>
+        </v-btn>
+      </div>
+
     </v-app-bar>
 
     <v-main>
@@ -45,11 +58,30 @@
 
 <script>
 
+import { mapState, mapActions } from 'vuex';
+
 export default {
   name: 'App',
 
   data: () => ({
     //
   }),
+
+  computed: {
+    ...mapState('auth', ['payload']),
+  },
+
+  methods: {
+    ...mapActions('auth', { authLogout: 'logout' }),
+    async logout() {
+      try {
+        await this.authLogout();
+        this.$router.push('/login');
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+
 };
 </script>

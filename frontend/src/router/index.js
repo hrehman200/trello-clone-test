@@ -3,6 +3,8 @@ import VueRouter from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import SignupView from '../views/SignupView.vue';
 import LoginView from '../views/LoginView.vue';
+import BoardsView from '../views/BoardsView.vue';
+import store from '../store';
 
 Vue.use(VueRouter);
 
@@ -11,6 +13,14 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView,
+    async beforeEnter(to, from, next) {
+      try {
+        await store.dispatch('auth/authenticate');
+        next('/boards');
+      } catch (error) {
+        next('/login');
+      }
+    },
   },
   {
     path: '/signup',
@@ -21,6 +31,19 @@ const routes = [
     path: '/login',
     name: 'logIn',
     component: LoginView,
+  },
+  {
+    path: '/boards',
+    name: 'boardsComponent',
+    component: BoardsView,
+    async beforeEnter(to, from, next) {
+      try {
+        await store.dispatch('auth/authenticate');
+        next();
+      } catch (error) {
+        next('/login');
+      }
+    },
   },
   {
     path: '/about',

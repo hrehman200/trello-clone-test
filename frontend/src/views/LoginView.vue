@@ -54,8 +54,8 @@ export default {
       password: '',
     },
     notEmptyRules: [
-      (v) => !!v || 'Name is required',
-      (v) => (v && v.length <= 20) || 'Name must be less than 20 characters',
+      (v) => !!v || 'Field is required',
+      (v) => (v && v.length <= 20) || 'Field must be less than 20 characters',
     ],
     confirmPasswordRules: [
       (confirmPassword) => confirmPassword === vm.user.password || 'Password must match',
