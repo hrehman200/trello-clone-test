@@ -5,7 +5,8 @@ import {
   makeAuthPlugin,
 } from '../feathers-client';
 import { servicePathUsers, servicePluginUser } from './user';
-import { Board, servicePathBoards, servicePluginBoard } from './board';
+import { servicePluginBoard } from './board';
+import { servicePluginList } from "./list";
 
 Vue.use(Vuex);
 Vue.use(FeathersVuex);
@@ -20,5 +21,6 @@ export default new Vuex.Store({
     makeAuthPlugin({ userService: servicePathUsers }),
     servicePluginUser,
     servicePluginBoard,
+    servicePluginList,
   ],
 });

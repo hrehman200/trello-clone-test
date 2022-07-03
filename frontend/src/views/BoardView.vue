@@ -2,13 +2,16 @@
   <v-container>
 
   <v-layout row align-center wrap>
-    <v-flex sm3 v-for="board in boards" :key="board._id" pa-2>
+
+    <v-flex sm12 mt-5>
+      <h2>{{ board.name }} </h2>
+    </v-flex>
+
+    <v-flex sm3 v-for="list in lists" :key="list._id" pa-2>
       <v-card>
-        <v-img height="100px" :src="board.background" class="white--text">
-          <v-card-title>{{ board.name }}</v-card-title>
-        </v-img>
+        <v-card-title>{{ list.name }}</v-card-title>
         <v-card-actions>
-          <v-btn class="primary" :to="{ name: 'boardComponent', params: { id:board._id } }">See Tasks</v-btn>
+          <v-btn class="primary">See Tasks</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -16,29 +19,21 @@
     <v-flex sm3 pa-2>
       <v-card
       >
-        <v-card-title>Create Board</v-card-title>
+        <v-card-title>Create List</v-card-title>
 
         <v-card-text class="text--primary">
           <div>
             <v-form
-              @submit.prevent="createBoard"
+              @submit.prevent="createList"
               ref="form"
               v-model="valid"
               lazy-validation
-              v-if="!creating"  
+              v-if="!loading"  
             >
               <v-text-field
-                v-model="board.name"
+                v-model="list.name"
                 :rules="notEmptyRules"
                 label="Name"
-                required
-              ></v-text-field>
-
-              <v-text-field
-                v-model="board.background"
-                :rules="notEmptyRules"
-                label="Background"
-                type="text"
                 required
               ></v-text-field>
 
@@ -53,7 +48,7 @@
             </v-form>
 
             <v-progress-circular
-              v-if="creating"
+              v-if="loading || loadingLists"
               :size="50"
               color="primary"
               indeterminate
@@ -73,12 +68,15 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
-  name: 'boardsComponent',
+  name: 'boardComponent',
   data: (vm) => ({
     valid: false,
-    board: {
+    dataready: false,
+    board: {},
+    list: {
       name: '',
-      background: '',
+      order: 0,
+      archived: false,
     },
     notEmptyRules: [
       (v) => !!v || 'Field is required',
@@ -86,22 +84,29 @@ export default {
   }),
 
   async mounted() {
-    const boards = await this.findBoards();
-    console.log(boards);
+    try {
+      this.board = await this.getBoard(this.$route.params.id);
+      const lists = await this.findLists({ query: { boardId: this.$route.params.id } });
+    } catch (error) {
+      console.log(error);
+    }
   },
 
   methods: {
-    ...mapActions('boards', { findBoards: 'find' }),
+    ...mapActions('boards', { getBoard: 'get' }),
+    ...mapActions('lists', { findLists: 'find' }),
 
-    createBoard() {
+    createList() {
       if (this.valid) {
         try {
-          const { Board } = this.$FeathersVuex.api;
-          const board = new Board(this.board);
-          board.save();
-          this.board = {
+          const { List } = this.$FeathersVuex.api;
+          this.list.boardId = this.$route.params.id;
+          const list = new List(this.list);
+          list.save();
+          this.list = {
             name: '',
-            background: '',
+            order: 0,
+            archived: false,
           };
         } catch (error) {
           console.log(error);
@@ -111,15 +116,13 @@ export default {
   },
 
   computed: {
-    ...mapState('boards', {
-      loading: 'isFindPending',
-      creating: 'isCreatePending',
-    }),
-    ...mapState('auth', ['payload']),
-    ...mapGetters('boards', {findBoardsInStore: 'find'}),
+    ...mapState('boards', { loading: 'isGetPending' }),
+    ...mapState('boards', { loadingLists: 'isFindPending', creatingList: 'isCreatePending' }),
+
+    ...mapGetters('lists', { findListsInStore: 'find' }),
     
-    boards() {
-      return this.findBoardsInStore( { query: { ownerId: this.payload.user._id} }).data;
+    lists() {
+      return this.findListsInStore({ query: { boardId: this.$route.params.id } }).data;
     },
   },
 };
