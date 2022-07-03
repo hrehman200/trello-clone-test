@@ -1,7 +1,7 @@
 <template>
   <v-container>
 
-  <v-layout row align-center wrap>
+  <v-layout row wrap>
 
     <v-flex sm12 mt-5>
       <h2>{{ board.name }} </h2>
@@ -10,8 +10,15 @@
     <v-flex sm3 v-for="list in lists" :key="list._id" pa-2>
       <v-card>
         <v-card-title>{{ list.name }}</v-card-title>
+        
+        <v-flex xs12 v-if="groupedCardsByListId[list._id]">
+          <v-card v-for="card in groupedCardsByListId[list._id]" :key="card._id" class="ma-2">
+            <v-card-title class="headline">{{ card.title }}</v-card-title>
+          </v-card>
+        </v-flex>
+      
         <v-card-actions>
-          <v-btn class="primary">See Tasks</v-btn>
+          <card-view :listId="list._id" :boardId="$route.params.id"></card-view>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -28,7 +35,7 @@
               ref="form"
               v-model="valid"
               lazy-validation
-              v-if="!loading"  
+              v-if="!loading"
             >
               <v-text-field
                 v-model="list.name"
@@ -66,9 +73,13 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
+import CardView from './CardView.vue';
 
 export default {
   name: 'boardComponent',
+  components: {
+    CardView,
+  },
   data: (vm) => ({
     valid: false,
     dataready: false,
@@ -87,6 +98,7 @@ export default {
     try {
       this.board = await this.getBoard(this.$route.params.id);
       const lists = await this.findLists({ query: { boardId: this.$route.params.id } });
+      const cards = await this.findCards({ query: { boardId: this.$route.params.id } });
     } catch (error) {
       console.log(error);
     }
@@ -95,6 +107,7 @@ export default {
   methods: {
     ...mapActions('boards', { getBoard: 'get' }),
     ...mapActions('lists', { findLists: 'find' }),
+    ...mapActions('cards', { findCards: 'find' }),
 
     createList() {
       if (this.valid) {
@@ -120,9 +133,22 @@ export default {
     ...mapState('boards', { loadingLists: 'isFindPending', creatingList: 'isCreatePending' }),
 
     ...mapGetters('lists', { findListsInStore: 'find' }),
-    
+    ...mapGetters('cards', { findCardsInStore: 'find' }),
+
     lists() {
       return this.findListsInStore({ query: { boardId: this.$route.params.id } }).data;
+    },
+
+    cards() {
+      return this.findCardsInStore({ query: { boardId: this.$route.params.id } }).data;
+    },
+
+    groupedCardsByListId() {
+      return this.cards.reduce((byId, card) => {
+        byId[card.listId] = byId[card.listId] || [];
+        byId[card.listId].push(card);
+        return byId;
+      }, {});
     },
   },
 };

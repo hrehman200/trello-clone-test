@@ -8,7 +8,9 @@
           <v-card-title>{{ board.name }}</v-card-title>
         </v-img>
         <v-card-actions>
-          <v-btn class="primary" :to="{ name: 'boardComponent', params: { id:board._id } }">See Tasks</v-btn>
+          <v-btn class="primary" :to="{ name: 'boardComponent', params: { id:board._id } }">
+            See Tasks
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -25,7 +27,7 @@
               ref="form"
               v-model="valid"
               lazy-validation
-              v-if="!creating"  
+              v-if="!creating"
             >
               <v-text-field
                 v-model="board.name"
@@ -116,10 +118,10 @@ export default {
       creating: 'isCreatePending',
     }),
     ...mapState('auth', ['payload']),
-    ...mapGetters('boards', {findBoardsInStore: 'find'}),
-    
+    ...mapGetters('boards', { findBoardsInStore: 'find' }),
+
     boards() {
-      return this.findBoardsInStore( { query: { ownerId: this.payload.user._id} }).data;
+      return this.findBoardsInStore({ query: { ownerId: this.payload.user._id } }).data;
     },
   },
 };

@@ -39,6 +39,13 @@
       </div>
 
       <div v-if="payload">
+
+        <v-avatar
+          size="36px"
+        >
+          <img :src="payload.user.imageUrl" alt="avatar" >
+        </v-avatar>
+
         <v-btn
           @click="logout"
           text

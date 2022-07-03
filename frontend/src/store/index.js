@@ -6,7 +6,8 @@ import {
 } from '../feathers-client';
 import { servicePathUsers, servicePluginUser } from './user';
 import { servicePluginBoard } from './board';
-import { servicePluginList } from "./list";
+import { servicePluginList } from './list';
+import { servicePluginCard } from './card';
 
 Vue.use(Vuex);
 Vue.use(FeathersVuex);
@@ -22,5 +23,6 @@ export default new Vuex.Store({
     servicePluginUser,
     servicePluginBoard,
     servicePluginList,
+    servicePluginCard,
   ],
 });
