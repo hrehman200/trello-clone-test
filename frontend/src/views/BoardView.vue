@@ -8,11 +8,15 @@
     </v-flex>
 
     <v-flex sm3 v-for="list in lists" :key="list._id" pa-2>
-      <v-card>
+      <v-card @dragover="setDroppingList($event, list)" :class="{ green: droppingList == list }">
         <v-card-title>{{ list.name }}</v-card-title>
         
         <v-flex xs12 v-if="groupedCardsByListId[list._id]">
-          <v-card v-for="card in groupedCardsByListId[list._id]" :key="card._id" class="ma-2">
+          <v-card v-for="card in groupedCardsByListId[list._id]" :key="card._id" class="ma-2"
+            draggable="true"
+            @dragstart="startDraggingCard(card)"
+            @dragend="dropCard()"
+          >
             <v-card-title class="headline">{{ card.title }}</v-card-title>
           </v-card>
         </v-flex>
@@ -83,6 +87,8 @@ export default {
   data: (vm) => ({
     valid: false,
     dataready: false,
+    draggingCard: null,
+    droppingList: null,
     board: {},
     list: {
       name: '',
@@ -125,6 +131,24 @@ export default {
           console.log(error);
         }
       }
+    },
+
+    startDraggingCard(card) {
+      this.draggingCard = card;
+    },
+
+    setDroppingList(event, list) {
+      event.preventDefault();
+      this.droppingList = list;
+    },
+
+    dropCard() {
+      if(this.droppingList) {
+        this.draggingCard.listId = this.droppingList._id;
+        this.draggingCard.save();
+      }
+      this.draggingCard = null;
+      this.droppingList = null;
     },
   },
 
