@@ -76,7 +76,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'boardsComponent',
-  data: (vm) => ({
+  data: () => ({
     valid: false,
     board: {
       name: '',
@@ -121,6 +121,7 @@ export default {
     ...mapGetters('boards', { findBoardsInStore: 'find' }),
 
     boards() {
+      /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
       return this.findBoardsInStore({ query: { ownerId: this.payload.user._id } }).data;
     },
   },

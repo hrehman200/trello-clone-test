@@ -39,7 +39,6 @@
 
     <v-text-field
       v-model="user.imageUrl"
-      :rules="notEmptyRules"
       label="Image URL"
       required
     ></v-text-field>

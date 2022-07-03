@@ -37,13 +37,13 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   name: 'card-component',
   props: ['listId', 'boardId'],
 
-  data: (vm) => ({
+  data: () => ({
     valid: false,
     dataready: false,
     card: {

@@ -10,7 +10,6 @@
     <v-flex sm3 v-for="list in lists" :key="list._id" pa-2>
       <v-card @dragover="setDroppingList($event, list)" :class="{ green: droppingList == list }">
         <v-card-title>{{ list.name }}</v-card-title>
-        
         <v-flex xs12 v-if="groupedCardsByListId[list._id]">
           <v-card v-for="card in groupedCardsByListId[list._id]" :key="card._id" class="ma-2"
             draggable="true"
@@ -20,7 +19,6 @@
             <v-card-title class="headline">{{ card.title }}</v-card-title>
           </v-card>
         </v-flex>
-      
         <v-card-actions>
           <card-view :listId="list._id" :boardId="$route.params.id"></card-view>
         </v-card-actions>
@@ -84,7 +82,7 @@ export default {
   components: {
     CardView,
   },
-  data: (vm) => ({
+  data: () => ({
     valid: false,
     dataready: false,
     draggingCard: null,
@@ -103,8 +101,8 @@ export default {
   async mounted() {
     try {
       this.board = await this.getBoard(this.$route.params.id);
-      const lists = await this.findLists({ query: { boardId: this.$route.params.id } });
-      const cards = await this.findCards({ query: { boardId: this.$route.params.id } });
+      await this.findLists({ query: { boardId: this.$route.params.id } });
+      await this.findCards({ query: { boardId: this.$route.params.id } });
     } catch (error) {
       console.log(error);
     }
@@ -143,7 +141,8 @@ export default {
     },
 
     dropCard() {
-      if(this.droppingList) {
+      if (this.droppingList) {
+        /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
         this.draggingCard.listId = this.droppingList._id;
         this.draggingCard.save();
       }
@@ -169,9 +168,10 @@ export default {
 
     groupedCardsByListId() {
       return this.cards.reduce((byId, card) => {
-        byId[card.listId] = byId[card.listId] || [];
-        byId[card.listId].push(card);
-        return byId;
+        const temp = byId;
+        temp[card.listId] = byId[card.listId] || [];
+        temp[card.listId].push(card);
+        return temp;
       }, {});
     },
   },
